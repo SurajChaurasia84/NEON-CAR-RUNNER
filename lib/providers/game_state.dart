@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
 import '../services/storage_service.dart';
 
@@ -5,7 +6,10 @@ class GameState extends ChangeNotifier {
   final StorageService _storage = StorageService();
 
   int _totalCoins = 0;
-  int _highScore = 0; // Add this
+  int _highScore = 0;
+  DateTime? _lastAdTime; // Add this
+  Timer? _cooldownTimer; // Add this
+  
   double _currentRunScore = 0;
   int _currentRunCoins = 0;
   bool _isGameOver = false;
@@ -14,20 +18,51 @@ class GameState extends ChangeNotifier {
   int _coinsFinalizedInRun = 0;
 
   int get totalCoins => _totalCoins;
-  int get highScore => _highScore; // Add this
+  int get highScore => _highScore;
   int get currentRunScore => _currentRunScore.floor();
   int get currentRunCoins => _currentRunCoins;
   bool get isGameOver => _isGameOver;
   bool get isPaused => _isPaused;
   bool get hasUsedCoinContinue => _hasUsedCoinContinue;
-
-  GameState() {
-    _loadCoins();
+  
+  // Getter for cooldown duration
+  Duration? get adCooldownRemaining {
+    if (_lastAdTime == null) return null;
+    final diff = DateTime.now().difference(_lastAdTime!);
+    final remaining = const Duration(minutes: 30) - diff;
+    return remaining.isNegative ? null : remaining;
   }
 
-  Future<void> _loadCoins() async {
+  GameState() {
+    _loadState();
+  }
+
+  Future<void> _loadState() async {
     _totalCoins = await _storage.loadCoins();
-    _highScore = await _storage.loadHighScore(); // Load highScore
+    _highScore = await _storage.loadHighScore();
+    _lastAdTime = await _storage.loadLastAdTime();
+    
+    // Start timer if cooldown active
+    if (adCooldownRemaining != null) {
+      _startCooldownTimer();
+    }
+    notifyListeners();
+  }
+
+  void _startCooldownTimer() {
+    _cooldownTimer?.cancel();
+    _cooldownTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (adCooldownRemaining == null) {
+        timer.cancel();
+      }
+      notifyListeners();
+    });
+  }
+
+  void recordAdWatch() {
+    _lastAdTime = DateTime.now();
+    _storage.saveLastAdTime(_lastAdTime!);
+    _startCooldownTimer();
     notifyListeners();
   }
 
@@ -83,7 +118,6 @@ class GameState extends ChangeNotifier {
   }
 
   void _finalizeRun() {
-    // Update total coins
     int newCoins = _currentRunCoins - _coinsFinalizedInRun;
     if (newCoins > 0) {
       _totalCoins += newCoins;
@@ -91,7 +125,6 @@ class GameState extends ChangeNotifier {
       _storage.saveCoins(_totalCoins);
     }
 
-    // Check and update High Score
     int currentScoreInt = _currentRunScore.floor();
     if (currentScoreInt > _highScore) {
       _highScore = currentScoreInt;
@@ -103,5 +136,11 @@ class GameState extends ChangeNotifier {
     _totalCoins += amount;
     _storage.saveCoins(_totalCoins);
     notifyListeners();
+  }
+
+  @override
+  void dispose() {
+    _cooldownTimer?.cancel();
+    super.dispose();
   }
 }
