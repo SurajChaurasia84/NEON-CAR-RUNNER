@@ -5,18 +5,20 @@ class GameState extends ChangeNotifier {
   final StorageService _storage = StorageService();
 
   int _totalCoins = 0;
+  int _highScore = 0; // Add this
   double _currentRunScore = 0;
   int _currentRunCoins = 0;
   bool _isGameOver = false;
-  bool _isPaused = false; // Add this
+  bool _isPaused = false;
   bool _hasUsedCoinContinue = false;
   int _coinsFinalizedInRun = 0;
 
   int get totalCoins => _totalCoins;
+  int get highScore => _highScore; // Add this
   int get currentRunScore => _currentRunScore.floor();
   int get currentRunCoins => _currentRunCoins;
   bool get isGameOver => _isGameOver;
-  bool get isPaused => _isPaused; // Add this
+  bool get isPaused => _isPaused;
   bool get hasUsedCoinContinue => _hasUsedCoinContinue;
 
   GameState() {
@@ -25,6 +27,7 @@ class GameState extends ChangeNotifier {
 
   Future<void> _loadCoins() async {
     _totalCoins = await _storage.loadCoins();
+    _highScore = await _storage.loadHighScore(); // Load highScore
     notifyListeners();
   }
 
@@ -52,7 +55,7 @@ class GameState extends ChangeNotifier {
     } else {
       resetScore();
       _hasUsedCoinContinue = false;
-      _isPaused = false; // Reset pause on new run
+      _isPaused = false;
     }
     notifyListeners();
   }
@@ -80,11 +83,19 @@ class GameState extends ChangeNotifier {
   }
 
   void _finalizeRun() {
+    // Update total coins
     int newCoins = _currentRunCoins - _coinsFinalizedInRun;
     if (newCoins > 0) {
       _totalCoins += newCoins;
       _coinsFinalizedInRun = _currentRunCoins;
       _storage.saveCoins(_totalCoins);
+    }
+
+    // Check and update High Score
+    int currentScoreInt = _currentRunScore.floor();
+    if (currentScoreInt > _highScore) {
+      _highScore = currentScoreInt;
+      _storage.saveHighScore(_highScore);
     }
   }
 
