@@ -81,6 +81,21 @@ class HomeScreen extends StatelessWidget {
                       ],
                     ),
                   ),
+
+                  // Highest Score Display
+                  Consumer<GameState>(
+                    builder: (context, state, child) {
+                      return Text(
+                        'HIGHEST: ${state.highScore}',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white70,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 2,
+                        ),
+                      );
+                    },
+                  ),
                   
                   const SizedBox(height: 20),
 
