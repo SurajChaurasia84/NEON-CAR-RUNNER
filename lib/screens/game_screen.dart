@@ -208,8 +208,8 @@ class GameOverOverlay extends StatelessWidget {
             ),
             const SizedBox(height: 20),
             
-            // Continue Options
-            if (!state.hasUsedCoinContinue) ...[
+            // Continue Options (Only one use per run)
+            if (!state.hasContinuedInRun) ...[
               Opacity(
                 opacity: state.totalCoins >= 20 ? 1.0 : 0.5,
                 child: OutlinedButton(
@@ -220,7 +220,7 @@ class GameOverOverlay extends StatelessWidget {
                           game.gameSpeed *= 0.8;
                         }
                       }
-                    : null, // Disabled if not enough coins
+                    : null,
                   style: OutlinedButton.styleFrom(
                     side: BorderSide(
                       color: state.totalCoins >= 20 ? Colors.yellowAccent : Colors.grey, 
@@ -240,7 +240,10 @@ class GameOverOverlay extends StatelessWidget {
                           fontWeight: FontWeight.bold
                         ),
                       ),
-                      Image.asset('assets/images/coin.png', width: 24, height: 24, color: state.totalCoins >= 20 ? null : Colors.grey),
+                      Opacity(
+                        opacity: state.totalCoins >= 20 ? 1.0 : 0.5,
+                        child: Image.asset('assets/images/coin.png', width: 24, height: 24),
+                      ),
                     ],
                   ),
                 ),
@@ -251,27 +254,26 @@ class GameOverOverlay extends StatelessWidget {
                 style: GoogleFonts.outfit(color: Colors.white54, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 15),
+              ElevatedButton.icon(
+                onPressed: () {
+                  AdService.showRewardedAd(onRewardComplete: () {
+                    game.resume();
+                    game.gameSpeed *= 0.8;
+                  });
+                },
+                icon: const Icon(Icons.video_library_rounded),
+                label: Text(
+                  'Watch Ad',
+                  style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.orangeAccent,
+                  foregroundColor: Colors.black,
+                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                ),
+              ),
             ],
-
-            ElevatedButton.icon(
-              onPressed: () {
-                AdService.showRewardedAd(onRewardComplete: () {
-                  game.resume();
-                  game.gameSpeed *= 0.8;
-                });
-              },
-              icon: const Icon(Icons.video_library_rounded),
-              label: Text(
-                'Watch Ad',
-                style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orangeAccent,
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-              ),
-            ),
 
             const SizedBox(height: 20),
 
