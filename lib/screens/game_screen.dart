@@ -209,28 +209,40 @@ class GameOverOverlay extends StatelessWidget {
             const SizedBox(height: 20),
             
             // Continue Options
-            if (!state.hasUsedCoinContinue && state.totalCoins >= 20) ...[
-              OutlinedButton(
-                onPressed: () {
-                  if (state.spendCoins(20)) {
-                    game.resume();
-                    game.gameSpeed *= 0.8;
-                  }
-                },
-                style: OutlinedButton.styleFrom(
-                  side: const BorderSide(color: Colors.yellowAccent, width: 2),
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                ),
-                child: Row(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Text(
-                      'USE 20 ',
-                      style: GoogleFonts.outfit(color: Colors.yellowAccent, fontSize: 18, fontWeight: FontWeight.bold),
+            if (!state.hasUsedCoinContinue) ...[
+              Opacity(
+                opacity: state.totalCoins >= 20 ? 1.0 : 0.5,
+                child: OutlinedButton(
+                  onPressed: state.totalCoins >= 20 
+                    ? () {
+                        if (state.spendCoins(20)) {
+                          game.resume();
+                          game.gameSpeed *= 0.8;
+                        }
+                      }
+                    : null, // Disabled if not enough coins
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: state.totalCoins >= 20 ? Colors.yellowAccent : Colors.grey, 
+                      width: 2
                     ),
-                    Image.asset('assets/images/coin.png', width: 24, height: 24),
-                  ],
+                    padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        state.totalCoins >= 20 ? 'USE 20 ' : 'NEED 20 ',
+                        style: GoogleFonts.outfit(
+                          color: state.totalCoins >= 20 ? Colors.yellowAccent : Colors.grey, 
+                          fontSize: 18, 
+                          fontWeight: FontWeight.bold
+                        ),
+                      ),
+                      Image.asset('assets/images/coin.png', width: 24, height: 24, color: state.totalCoins >= 20 ? null : Colors.grey),
+                    ],
+                  ),
                 ),
               ),
               const SizedBox(height: 15),
