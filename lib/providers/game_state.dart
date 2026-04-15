@@ -7,14 +7,14 @@ class GameState extends ChangeNotifier {
 
   int _totalCoins = 0;
   int _highScore = 0;
-  DateTime? _lastAdTime; // Add this
-  Timer? _cooldownTimer; // Add this
+  DateTime? _lastAdTime;
+  Timer? _cooldownTimer;
   
   double _currentRunScore = 0;
   int _currentRunCoins = 0;
   bool _isGameOver = false;
   bool _isPaused = false;
-  bool _hasUsedCoinContinue = false;
+  bool _hasContinuedInRun = false; // Renamed for clarity
   int _coinsFinalizedInRun = 0;
 
   int get totalCoins => _totalCoins;
@@ -23,9 +23,8 @@ class GameState extends ChangeNotifier {
   int get currentRunCoins => _currentRunCoins;
   bool get isGameOver => _isGameOver;
   bool get isPaused => _isPaused;
-  bool get hasUsedCoinContinue => _hasUsedCoinContinue;
+  bool get hasContinuedInRun => _hasContinuedInRun;
   
-  // Getter for cooldown duration
   Duration? get adCooldownRemaining {
     if (_lastAdTime == null) return null;
     final diff = DateTime.now().difference(_lastAdTime!);
@@ -42,7 +41,6 @@ class GameState extends ChangeNotifier {
     _highScore = await _storage.loadHighScore();
     _lastAdTime = await _storage.loadLastAdTime();
     
-    // Start timer if cooldown active
     if (adCooldownRemaining != null) {
       _startCooldownTimer();
     }
@@ -89,7 +87,7 @@ class GameState extends ChangeNotifier {
       _finalizeRun();
     } else {
       resetScore();
-      _hasUsedCoinContinue = false;
+      _hasContinuedInRun = false; // Reset on new run
       _isPaused = false;
     }
     notifyListeners();
@@ -103,13 +101,14 @@ class GameState extends ChangeNotifier {
   void resumeGame() {
     _isGameOver = false;
     _isPaused = false;
+    _hasContinuedInRun = true; // Mark as continued
     notifyListeners();
   }
 
   bool spendCoins(int amount) {
     if (_totalCoins >= amount) {
       _totalCoins -= amount;
-      _hasUsedCoinContinue = true;
+      _hasContinuedInRun = true; // Mark as continued
       _storage.saveCoins(_totalCoins);
       notifyListeners();
       return true;
