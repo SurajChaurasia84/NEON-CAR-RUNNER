@@ -114,26 +114,67 @@ class HomeScreen extends StatelessWidget {
 
                   const SizedBox(height: 20),
 
-                  // Watch Ad Button (Earn Coins) - Now on Top
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      AdService.showRewardedAd(onRewardComplete: () {
-                        context.read<GameState>().addBonusCoins(50);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Received 50 Bonus Coins!')),
-                        );
-                      });
+                  // Watch Ad Button (Earn Coins)
+                  Consumer<GameState>(
+                    builder: (context, state, child) {
+                      final remaining = state.adCooldownRemaining;
+                      final bool isCooldown = remaining != null;
+                      
+                      String formatDuration(Duration d) {
+                        String twoDigits(int n) => n.toString().padLeft(2, "0");
+                        String mm = twoDigits(d.inMinutes.remainder(60));
+                        String ss = twoDigits(d.inSeconds.remainder(60));
+                        return "$mm:$ss";
+                      }
+
+                      return Opacity(
+                        opacity: isCooldown ? 0.6 : 1.0,
+                        child: OutlinedButton(
+                          onPressed: isCooldown ? null : () {
+                            AdService.showRewardedAd(onRewardComplete: () {
+                              state.addBonusCoins(10);
+                              state.recordAdWatch();
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(content: Text('earned 10 coins reward')),
+                              );
+                            });
+                          },
+                          style: OutlinedButton.styleFrom(
+                            side: BorderSide(color: isCooldown ? Colors.grey : Colors.pinkAccent, width: 2),
+                            padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 12),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Image.asset('assets/images/money-bag.png', width: 32, height: 32),
+                              const SizedBox(width: 15),
+                              Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'WATCH AD TO EARN 10 COINS',
+                                    style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
+                                  ),
+                                  Padding(
+                                    padding: const EdgeInsets.only(top: 2),
+                                    child: Text(
+                                      isCooldown ? 'Available in ${formatDuration(remaining)}' : 'Available',
+                                      style: GoogleFonts.outfit(
+                                        color: isCooldown ? Colors.white70 : Colors.greenAccent,
+                                        fontSize: 12,
+                                        fontWeight: isCooldown ? FontWeight.normal : FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
                     },
-                    icon: Image.asset('assets/images/money-bag.png', width: 24, height: 24),
-                    label: Text(
-                      'EARN COINS',
-                      style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
-                    ),
-                    style: OutlinedButton.styleFrom(
-                      side: const BorderSide(color: Colors.pinkAccent, width: 2),
-                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    ),
                   ),
                   
                   const SizedBox(height: 25),
