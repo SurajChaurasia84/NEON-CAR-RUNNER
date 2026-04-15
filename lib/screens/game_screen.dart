@@ -209,10 +209,10 @@ class GameOverOverlay extends StatelessWidget {
             const SizedBox(height: 20),
             
             // Continue Options
-            if (!state.hasUsedCoinContinue && state.totalCoins >= 5) ...[
+            if (!state.hasUsedCoinContinue && state.totalCoins >= 20) ...[
               OutlinedButton(
                 onPressed: () {
-                  if (state.spendCoins(5)) {
+                  if (state.spendCoins(20)) {
                     game.resume();
                     game.gameSpeed *= 0.8;
                   }
@@ -226,7 +226,7 @@ class GameOverOverlay extends StatelessWidget {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Text(
-                      'USE 5 ',
+                      'USE 20 ',
                       style: GoogleFonts.outfit(color: Colors.yellowAccent, fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     Image.asset('assets/images/coin.png', width: 24, height: 24),
