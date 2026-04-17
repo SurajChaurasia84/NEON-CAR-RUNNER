@@ -6,6 +6,7 @@ class AdService {
   
   static const String rewardedPlacement = 'Rewarded_Android';
   static const String interstitialPlacement = 'Interstitial_Android';
+  static const String bannerPlacement = 'Banner_Android';
 
   static Future<void> init() async {
     print('DEBUG: Initializing Unity Ads for Android Only...');

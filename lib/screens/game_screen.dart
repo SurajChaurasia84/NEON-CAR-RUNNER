@@ -1,7 +1,10 @@
+import 'dart:async';
+import 'dart:math';
 import 'package:flame/game.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:unity_ads_plugin/unity_ads_plugin.dart';
 import '../game/runner_game.dart';
 import '../providers/game_state.dart';
 import '../services/ad_service.dart';
@@ -15,11 +18,35 @@ class GameScreen extends StatefulWidget {
 
 class _GameScreenState extends State<GameScreen> {
   late RunnerGame game;
+  UniqueKey _bannerKey = UniqueKey();
+  Timer? _bannerTimer;
 
   @override
   void initState() {
     super.initState();
     game = RunnerGame(gameState: context.read<GameState>());
+    _startBannerRefreshTimer();
+  }
+
+  void _startBannerRefreshTimer() {
+    _bannerTimer?.cancel();
+    // Random interval between 60 and 90 seconds
+    final int nextRefresh = 60 + Random().nextInt(31);
+    
+    _bannerTimer = Timer(Duration(seconds: nextRefresh), () {
+      if (mounted) {
+        setState(() {
+          _bannerKey = UniqueKey();
+        });
+        _startBannerRefreshTimer();
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _bannerTimer?.cancel();
+    super.dispose();
   }
 
   @override
@@ -89,6 +116,21 @@ class _GameScreenState extends State<GameScreen> {
                 }
                 return const SizedBox.shrink();
               },
+            ),
+            
+            // Bottom Banner Ad
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: Container(
+                color: Colors.black.withOpacity(0.5),
+                child: UnityBannerAd(
+                  key: _bannerKey,
+                  placementId: AdService.bannerPlacement,
+                  onLoad: (placementId) => print('Banner Loaded: $placementId'),
+                  onClick: (placementId) => print('Banner Clicked: $placementId'),
+                  onFailed: (placementId, error, message) => print('Banner Ad Failed: $placementId $error $message'),
+                ),
+              ),
             ),
           ],
         ),
