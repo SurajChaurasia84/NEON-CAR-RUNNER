@@ -123,14 +123,16 @@ class _GameScreenState extends State<GameScreen> {
             // Bottom Banner Ad
             Align(
               alignment: Alignment.bottomCenter,
-              child: Container(
-                color: Colors.black.withOpacity(0.5),
-                child: UnityBannerAd(
-                  key: _bannerKey,
-                  placementId: AdService.bannerPlacement,
-                  onLoad: (placementId) => print('Banner Loaded: $placementId'),
-                  onClick: (placementId) => print('Banner Clicked: $placementId'),
-                  onFailed: (placementId, error, message) => print('Banner Ad Failed: $placementId $error $message'),
+              child: SafeArea(
+                child: Container(
+                  color: Colors.black.withOpacity(0.5),
+                  child: UnityBannerAd(
+                    key: _bannerKey,
+                    placementId: AdService.bannerPlacement,
+                    onLoad: (placementId) => print('Banner Loaded: $placementId'),
+                    onClick: (placementId) => print('Banner Clicked: $placementId'),
+                    onFailed: (placementId, error, message) => print('Banner Ad Failed: $placementId $error $message'),
+                  ),
                 ),
               ),
             ),
@@ -161,26 +163,23 @@ class HUDOverlay extends StatelessWidget {
                 children: [
                   Text(
                     'SCORE: ${state.currentRunScore}',
-                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                    style: GoogleFonts.outfit(color: Colors.white, fontSize: 24, fontWeight: FontWeight.bold),
                   ),
-                  Text(
-                    'COINS: ${state.currentRunCoins}',
-                    style: GoogleFonts.outfit(color: Colors.yellowAccent, fontSize: 16),
+                  Row(
+                    children: [
+                      Image.asset('assets/images/coin.png', width: 20, height: 20),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${state.currentRunCoins}',
+                        style: GoogleFonts.outfit(color: Colors.yellowAccent, fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    ],
                   ),
                 ],
               ),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(color: Colors.black26, borderRadius: BorderRadius.circular(10)),
-                    child: Text(
-                      'SPEED: ${(game.gameSpeed / 10).floor()}',
-                      style: GoogleFonts.outfit(color: Colors.cyanAccent, fontSize: 14),
-                    ),
-                  ),
-                  const SizedBox(height: 12),
                   // Music Toggle
                   GestureDetector(
                     onTap: () => state.toggleMusic(),
@@ -189,55 +188,39 @@ class HUDOverlay extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: state.isMusicEnabled ? Colors.yellowAccent : Colors.white24,
                         shape: BoxShape.circle,
-                        boxShadow: state.isMusicEnabled ? [
-                          BoxShadow(
-                            color: Colors.yellowAccent.withOpacity(0.4),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          ),
-                        ] : [],
                       ),
                       child: Icon(
                         state.isMusicEnabled ? Icons.music_note_rounded : Icons.music_off_rounded,
-                        color: state.isMusicEnabled ? Colors.black : Colors.white54,
-                        size: 36,
+                        color: state.isMusicEnabled ? Colors.black : Colors.white,
+                        size: 28,
                       ),
                     ),
                   ),
                   const SizedBox(height: 12),
-                  // Play/Pause Toggle
+                  // Pause Button
                   GestureDetector(
                     onTap: () {
-                      if (game.paused) {
-                        game.resumeEngine();
-                        state.setPaused(false);
+                      if (state.isPaused) {
+                        game.resume();
                       } else {
-                        game.pauseEngine();
                         state.setPaused(true);
                       }
                     },
                     child: Container(
                       padding: const EdgeInsets.all(10),
                       decoration: BoxDecoration(
-                        color: Colors.yellowAccent,
+                        color: Colors.white24,
                         shape: BoxShape.circle,
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.yellowAccent.withOpacity(0.4),
-                            blurRadius: 10,
-                            spreadRadius: 2,
-                          ),
-                        ],
                       ),
                       child: Icon(
                         state.isPaused ? Icons.play_arrow_rounded : Icons.pause_rounded,
-                        color: Colors.black,
-                        size: 36,
+                        color: Colors.white,
+                        size: 28,
                       ),
                     ),
                   ),
                 ],
-              )
+              ),
             ],
           );
         },
