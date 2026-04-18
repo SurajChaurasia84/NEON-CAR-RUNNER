@@ -4,10 +4,14 @@ import 'package:provider/provider.dart';
 import 'providers/game_state.dart';
 import 'screens/home_screen.dart';
 import 'services/ad_service.dart';
+import 'services/audio_service.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
+  // Initialize Audio
+  AudioService().init();
+
   // Set Orientation to Portrait
   await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
