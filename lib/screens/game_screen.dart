@@ -26,6 +26,8 @@ class _GameScreenState extends State<GameScreen> {
     super.initState();
     game = RunnerGame(gameState: context.read<GameState>());
     _startBannerRefreshTimer();
+    // Sync audio state when entering the game
+    context.read<GameState>().updateAudio();
   }
 
   void _startBannerRefreshTimer() {
@@ -176,6 +178,30 @@ class HUDOverlay extends StatelessWidget {
                     child: Text(
                       'SPEED: ${(game.gameSpeed / 10).floor()}',
                       style: GoogleFonts.outfit(color: Colors.cyanAccent, fontSize: 14),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  // Music Toggle
+                  GestureDetector(
+                    onTap: () => state.toggleMusic(),
+                    child: Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: state.isMusicEnabled ? Colors.yellowAccent : Colors.white24,
+                        shape: BoxShape.circle,
+                        boxShadow: state.isMusicEnabled ? [
+                          BoxShadow(
+                            color: Colors.yellowAccent.withOpacity(0.4),
+                            blurRadius: 10,
+                            spreadRadius: 2,
+                          ),
+                        ] : [],
+                      ),
+                      child: Icon(
+                        state.isMusicEnabled ? Icons.music_note_rounded : Icons.music_off_rounded,
+                        color: state.isMusicEnabled ? Colors.black : Colors.white54,
+                        size: 36,
+                      ),
                     ),
                   ),
                   const SizedBox(height: 12),
