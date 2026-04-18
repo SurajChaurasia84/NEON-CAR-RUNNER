@@ -126,7 +126,12 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
   }
 
   void resume() {
+    gameState.setPaused(false);
+  }
+
+  void continueRun() {
     gameState.resumeGame();
+    _clearObstacles();
   }
 
   void _clearObstacles() {

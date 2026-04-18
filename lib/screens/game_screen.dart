@@ -102,13 +102,15 @@ class _GameScreenState extends State<GameScreen> {
         },
         child: Stack(
           children: [
-            GameWidget(
-              game: game,
-              overlayBuilderMap: {
-                'GameOver': (context, RunnerGame game) => GameOverOverlay(game: game),
-                'HUD': (context, RunnerGame game) => HUDOverlay(game: game),
-              },
-              initialActiveOverlays: const ['HUD'],
+            SafeArea(
+              child: GameWidget(
+                game: game,
+                overlayBuilderMap: {
+                  'GameOver': (context, RunnerGame game) => GameOverOverlay(game: game),
+                  'HUD': (context, RunnerGame game) => HUDOverlay(game: game),
+                },
+                initialActiveOverlays: const ['HUD'],
+              ),
             ),
             // Game Over Overlay is triggered by GameState
             Consumer<GameState>(
@@ -267,7 +269,7 @@ class GameOverOverlay extends StatelessWidget {
                   onPressed: state.totalCoins >= 20 
                     ? () {
                         if (state.spendCoins(20)) {
-                          game.resume();
+                          game.continueRun();
                           game.gameSpeed *= 0.8;
                         }
                       }
@@ -308,7 +310,7 @@ class GameOverOverlay extends StatelessWidget {
               ElevatedButton.icon(
                 onPressed: () {
                   AdService.showRewardedAd(onRewardComplete: () {
-                    game.resume();
+                    game.continueRun();
                     game.gameSpeed *= 0.8;
                   });
                 },

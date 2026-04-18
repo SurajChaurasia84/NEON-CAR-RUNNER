@@ -8,13 +8,21 @@ class AudioService {
   bool _isInitialized = false;
   bool _isMuted = false;
 
-  void init() {
+  Future<void> init() async {
     if (_isInitialized) return;
-    FlameAudio.bgm.initialize();
-    // Flame Audio automatically prepends 'assets/' to the prefix.
-    // So 'music/' becomes 'assets/music/'
-    FlameAudio.audioCache.prefix = 'music/';
-    _isInitialized = true;
+    try {
+      FlameAudio.bgm.initialize();
+      // Explicitly set the prefix (Flame adds 'assets/' automatically)
+      FlameAudio.audioCache.prefix = 'music/';
+      
+      // Pre-load assets to avoid lag or first-play failures
+      await FlameAudio.audioCache.loadAll(['bg.mp3', 'go.mp3']);
+      
+      _isInitialized = true;
+      print('AudioService Initialized and Assets Pre-loaded');
+    } catch (e) {
+      print('AudioService Init Error: $e');
+    }
   }
 
   /// Master switch to enable/disable all audio globally
@@ -27,12 +35,15 @@ class AudioService {
 
   Future<void> playBgm(String fileName, {double volume = 1.0}) async {
     if (_isMuted) return; 
-    init();
+    if (!_isInitialized) await init();
     
     try {
-      // If already playing, don't restart
-      if (FlameAudio.bgm.isPlaying) return;
+      // If already playing, don't restart (saves CPU and avoids overlaps)
+      if (FlameAudio.bgm.isPlaying) {
+        return;
+      }
       
+      print('Attempting to play BGM: $fileName');
       await FlameAudio.bgm.play(fileName, volume: volume);
     } catch (e) {
       print('BGM Play Error: $e');
