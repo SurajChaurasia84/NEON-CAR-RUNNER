@@ -14,7 +14,7 @@ class AdService {
     
     await UnityAds.init(
       gameId: androidGameId,
-      testMode: false, // MUST be true for non-live apps
+      testMode: true, // MUST be true for non-live apps
       onComplete: () {
         print('SUCCESS: Unity Ads Initialized for Android: $androidGameId');
         loadRewardedAd();
