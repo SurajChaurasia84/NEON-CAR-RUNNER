@@ -16,11 +16,15 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
 
   late Player player;
   double gameSpeed = 300.0;
-  final double maxSpeed = 800.0;
-  final double speedIncrement = 5.0;
+  final double maxSpeed = 850.0; // Reasonable cap for survivability
+  final double speedIncrement = 4.0;
   
   double spawnTimer = 0.0;
-  final double spawnInterval = 1.5;
+  // Lower interval because we spawn single items now, not full waves
+  final double baseSpawnInterval = 0.8;
+  
+  // Track lanes to ensure survival
+  final List<int> _recentObstacleLanes = [];
 
   @override
   Future<void> onLoad() async {
@@ -39,7 +43,7 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
 
   @override
   void update(double dt) {
-    if (gameState.isGameOver) return;
+    if (gameState.isGameOver || gameState.isPaused) return;
 
     final cappedDt = dt.clamp(0.0, 0.05);
     super.update(cappedDt);
@@ -51,20 +55,60 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
     gameState.updateScore(gameSpeed * cappedDt / 50);
 
     spawnTimer += dt;
-    if (spawnTimer >= (spawnInterval * (300 / gameSpeed))) {
+    // Pacing: single items come 'aage piche'
+    double currentInterval = baseSpawnInterval * (400 / (gameSpeed * 0.7 + 100));
+    if (spawnTimer >= currentInterval) {
       spawnTimer = 0;
       spawnObject();
     }
   }
 
+  /// Spawns objects one-by-one with random vertical spacing
+  /// Ensures NO 3-lane traps by tracking recent obstacle placements
   void spawnObject() {
     final random = Random();
-    final lane = random.nextInt(3);
-    
-    if (random.nextDouble() > 0.3) {
+    int lane = random.nextInt(3);
+    bool isObstacle = random.nextDouble() > 0.35; // 65% chance for car
+
+    if (isObstacle) {
+      // Check if adding an obstacle in this lane creates a trap
+      // Rule: Never have all 3 lanes occupied by obstacles in the last 2 spawns
+      if (_recentObstacleLanes.length >= 2) {
+        bool wouldTrap = _recentObstacleLanes.contains(0) && 
+                         _recentObstacleLanes.contains(1) && 
+                         lane == 2;
+        if (!wouldTrap) {
+           wouldTrap = _recentObstacleLanes.contains(0) && 
+                       _recentObstacleLanes.contains(2) && 
+                       lane == 1;
+        }
+        if (!wouldTrap) {
+           wouldTrap = _recentObstacleLanes.contains(1) && 
+                       _recentObstacleLanes.contains(2) && 
+                       lane == 0;
+        }
+
+        if (wouldTrap) {
+          // Force it to be a coin instead of a car to keep a lane open
+          isObstacle = false;
+        }
+      }
+    }
+
+    if (isObstacle) {
       add(Obstacle(lane: lane, speed: gameSpeed));
+      
+      // Update memory (keep only last 2 lanes)
+      _recentObstacleLanes.add(lane);
+      if (_recentObstacleLanes.length > 2) {
+        _recentObstacleLanes.removeAt(0);
+      }
     } else {
       add(Coin(lane: lane, speed: gameSpeed));
+      // Coins don't contribute to traps, but we can clear memory a bit
+      if (random.nextDouble() > 0.8 && _recentObstacleLanes.isNotEmpty) {
+        _recentObstacleLanes.removeAt(0);
+      }
     }
   }
 
@@ -83,7 +127,6 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
 
   void resume() {
     gameState.resumeGame();
-    _clearObstacles();
   }
 
   void _clearObstacles() {
@@ -126,7 +169,6 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
 
   @override
   void onRemove() {
-    // We let GameState handle global audio stop/pause
     super.onRemove();
   }
 }
