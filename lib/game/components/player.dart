@@ -1,6 +1,5 @@
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
-import 'package:flutter/material.dart';
 import '../runner_game.dart';
 
 class Player extends SpriteComponent with HasGameRef<RunnerGame>, CollisionCallbacks {

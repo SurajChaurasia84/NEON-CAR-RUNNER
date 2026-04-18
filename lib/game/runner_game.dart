@@ -1,8 +1,6 @@
 import 'dart:math';
 import 'package:flame/events.dart';
 import 'package:flame/game.dart';
-import 'package:flame/components.dart';
-import 'package:flutter/material.dart';
 import '../providers/game_state.dart';
 import 'components/player.dart';
 import 'components/obstacle.dart';

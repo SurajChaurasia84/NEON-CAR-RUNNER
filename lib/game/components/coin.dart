@@ -1,7 +1,6 @@
 import 'dart:math' as math;
 import 'package:flame/components.dart';
 import 'package:flame/collisions.dart';
-import 'package:flutter/material.dart';
 import '../runner_game.dart';
 import 'player.dart';
 
