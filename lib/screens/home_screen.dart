@@ -26,6 +26,28 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
+          // Music Toggle at Top Right
+          Positioned(
+            top: 60,
+            right: 25,
+            child: Consumer<GameState>(
+              builder: (context, state, child) {
+                return GestureDetector(
+                  onTap: () => state.toggleMusic(),
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    color: Colors.transparent, // Ensures the entire padded area is tappable
+                    child: Icon(
+                      state.isMusicEnabled ? Icons.music_note_rounded : Icons.music_off_rounded,
+                      color: state.isMusicEnabled ? Colors.yellowAccent : Colors.white24,
+                      size: 36,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          
           // Total Coins Display at Top Left
           Positioned(
             top: 60,
