@@ -14,6 +14,7 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
   bool _isMusicEnabled = true;
   
   double _currentRunScore = 0;
+  
   int _currentRunCoins = 0;
   bool _isGameOver = false;
   bool _isPaused = false;
@@ -45,7 +46,10 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     _totalCoins = await _storage.loadCoins();
     _highScore = await _storage.loadHighScore();
     _lastAdTime = await _storage.loadLastAdTime();
+    
+    // Load setting and IMMEDIATELY apply it to AudioService
     _isMusicEnabled = await _storage.loadMusicEnabled();
+    _audio.updateMuteState(!_isMusicEnabled);
     
     if (adCooldownRemaining != null) {
       _startCooldownTimer();
@@ -63,21 +67,30 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     }
   }
 
+  /// Centralized logic to determine if BGM should be playing
   void _syncAudio() {
     if (!_isMusicEnabled || _isGameOver || _isPaused) {
       _audio.pauseBgm();
     } else {
-      _audio.playBgm('bg.mp3');
+      // If it's already playing/paused, resume it. 
+      // AudioService.resumeBgm handles the check internally.
+      _audio.resumeBgm();
+      
+      // If no music is playing at all (initial start), play it.
+      // We check this in AudioService or here. 
+      // To be safe, we only call play if it's needed.
+      _audio.playBgm('bg.mp3'); 
     }
   }
 
   void toggleMusic() {
     _isMusicEnabled = !_isMusicEnabled;
-    debugPrint('DEBUG: Music Enabled: $_isMusicEnabled');
+    // Save locally
     _storage.saveMusicEnabled(_isMusicEnabled);
-    if (!_isMusicEnabled) {
-      _audio.stopBgm();
-    } else {
+    // Push the master switch to the service
+    _audio.updateMuteState(!_isMusicEnabled);
+    
+    if (_isMusicEnabled) {
       _syncAudio();
     }
     notifyListeners();
@@ -88,9 +101,8 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     if (value) {
       _finalizeRun();
       _audio.stopBgm();
-      if (_isMusicEnabled) {
-        _audio.playSfx('go.mp3');
-      }
+      // Play SFX (only if music/sound is enabled)
+      _audio.playSfx('go.mp3');
     } else {
       resetScore();
       _hasContinuedInRun = false;
@@ -114,7 +126,6 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     notifyListeners();
   }
 
-  // Helper for UI to trigger audio update if needed
   void updateAudio() => _syncAudio();
 
   void recordAdWatch() {
@@ -123,6 +134,7 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     _startCooldownTimer();
     notifyListeners();
   }
+
 
   void updateScore(double points) {
     _currentRunScore += points;
