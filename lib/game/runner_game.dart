@@ -7,7 +7,6 @@ import '../providers/game_state.dart';
 import 'components/player.dart';
 import 'components/obstacle.dart';
 import 'components/coin.dart';
-
 import 'components/background.dart';
 
 class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, TapCallbacks {
@@ -26,33 +25,31 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
   @override
   Future<void> onLoad() async {
     await super.onLoad();
+    
     // Add Background Decorations
     add(LaneDecorator());
 
     // Add Player
     player = Player();
     add(player);
+
+    // Sync initial audio state
+    gameState.updateAudio();
   }
 
   @override
   void update(double dt) {
     if (gameState.isGameOver) return;
 
-    // Cap dt to avoid spikes (like first frame loading)
     final cappedDt = dt.clamp(0.0, 0.05);
-
     super.update(cappedDt);
 
-    // Increase speed gradually
     if (gameSpeed < maxSpeed) {
       gameSpeed += speedIncrement * cappedDt;
     }
 
-    // Update score based on distance (speed)
-    // Decreased rate: speed / 50 per second
     gameState.updateScore(gameSpeed * cappedDt / 50);
 
-    // Spawn logic
     spawnTimer += dt;
     if (spawnTimer >= (spawnInterval * (300 / gameSpeed))) {
       spawnTimer = 0;
@@ -62,7 +59,7 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
 
   void spawnObject() {
     final random = Random();
-    final lane = random.nextInt(3); // 0, 1, 2
+    final lane = random.nextInt(3);
     
     if (random.nextDouble() > 0.3) {
       add(Obstacle(lane: lane, speed: gameSpeed));
@@ -87,7 +84,6 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
   void resume() {
     gameState.resumeGame();
     _clearObstacles();
-    // No need to reset player, just let them keep going
   }
 
   void _clearObstacles() {
@@ -107,7 +103,6 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
   void onDragUpdate(DragUpdateEvent event) {
     if (hasSwiped || gameState.isGameOver) return;
 
-    // Sensitivity threshold
     if (event.localDelta.x > 5) {
       player.moveRight();
       hasSwiped = true;
@@ -127,5 +122,11 @@ class RunnerGame extends FlameGame with HasCollisionDetection, DragCallbacks, Ta
   void onDragCancel(DragCancelEvent event) {
     super.onDragCancel(event);
     hasSwiped = false;
+  }
+
+  @override
+  void onRemove() {
+    // We let GameState handle global audio stop/pause
+    super.onRemove();
   }
 }
