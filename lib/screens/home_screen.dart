@@ -26,61 +26,6 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
 
-          // Music Toggle at Top Right
-          Positioned(
-            top: 60,
-            right: 25,
-            child: Consumer<GameState>(
-              builder: (context, state, child) {
-                return GestureDetector(
-                  onTap: () => state.toggleMusic(),
-                  child: Container(
-                    padding: const EdgeInsets.all(12),
-                    color: Colors.transparent, // Ensures the entire padded area is tappable
-                    child: Icon(
-                      state.isMusicEnabled ? Icons.music_note_rounded : Icons.music_off_rounded,
-                      color: state.isMusicEnabled ? Colors.yellowAccent : Colors.white24,
-                      size: 36,
-                    ),
-                  ),
-                );
-              },
-            ),
-          ),
-          
-          // Total Coins Display at Top Left
-          Positioned(
-            top: 60,
-            left: 25,
-            child: Consumer<GameState>(
-              builder: (context, state, child) {
-                return Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
-                  decoration: BoxDecoration(
-                    color: Colors.black38,
-                    borderRadius: BorderRadius.circular(20),
-                    border: Border.all(color: Colors.yellowAccent.withOpacity(0.3)),
-                  ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Image.asset('assets/images/coin.png', width: 24, height: 24),
-                      const SizedBox(width: 8),
-                      Text(
-                        '${state.totalCoins}',
-                        style: GoogleFonts.outfit(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-              },
-            ),
-          ),
-
           // Main Menu Content
           Center(
             child: SingleChildScrollView(
@@ -236,6 +181,64 @@ class HomeScreen extends StatelessWidget {
                   const SizedBox(height: 40),
                 ],
               ),
+            ),
+          ),
+
+          // Music Toggle at Top Right (Z-Order: Top)
+          Positioned(
+            top: 60,
+            right: 25,
+            child: Consumer<GameState>(
+              builder: (context, state, child) {
+                return GestureDetector(
+                  onTap: () {
+                    debugPrint('MUSIC TOGGLE CLICKED');
+                    state.toggleMusic();
+                  },
+                  child: Container(
+                    padding: const EdgeInsets.all(12),
+                    color: Colors.transparent,
+                    child: Icon(
+                      state.isMusicEnabled ? Icons.music_note_rounded : Icons.music_off_rounded,
+                      color: state.isMusicEnabled ? Colors.yellowAccent : Colors.redAccent.withOpacity(0.8),
+                      size: 40,
+                    ),
+                  ),
+                );
+              },
+            ),
+          ),
+          
+          // Total Coins Display at Top Left (Z-Order: Top)
+          Positioned(
+            top: 60,
+            left: 25,
+            child: Consumer<GameState>(
+              builder: (context, state, child) {
+                return Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 8),
+                  decoration: BoxDecoration(
+                    color: Colors.black38,
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(color: Colors.yellowAccent.withOpacity(0.3)),
+                  ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Image.asset('assets/images/coin.png', width: 24, height: 24),
+                      const SizedBox(width: 8),
+                      Text(
+                        '${state.totalCoins}',
+                        style: GoogleFonts.outfit(
+                          color: Colors.white,
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
         ],
