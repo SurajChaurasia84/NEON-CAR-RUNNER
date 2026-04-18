@@ -3,7 +3,8 @@ import 'package:shared_preferences/shared_preferences.dart';
 class StorageService {
   static const String _coinsKey = 'total_coins';
   static const String _highScoreKey = 'high_score';
-  static const String _lastAdTimeKey = 'last_ad_time'; // Add this
+  static const String _lastAdTimeKey = 'last_ad_time';
+  static const String _musicEnabledKey = 'music_enabled';
 
   Future<void> saveCoins(int coins) async {
     final prefs = await SharedPreferences.getInstance();
@@ -35,5 +36,16 @@ class StorageService {
     final prefs = await SharedPreferences.getInstance();
     final timeStr = prefs.getString(_lastAdTimeKey);
     return timeStr != null ? DateTime.tryParse(timeStr) : null;
+  }
+
+  // New Music Setting methods
+  Future<void> saveMusicEnabled(bool enabled) async {
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setBool(_musicEnabledKey, enabled);
+  }
+
+  Future<bool> loadMusicEnabled() async {
+    final prefs = await SharedPreferences.getInstance();
+    return prefs.getBool(_musicEnabledKey) ?? true;
   }
 }
