@@ -6,38 +6,23 @@ class AudioService {
   AudioService._internal();
 
   bool _isInitialized = false;
-  bool _isMuted = false;
 
   void init() {
     if (_isInitialized) return;
     FlameAudio.bgm.initialize();
-    // Using the exact literal prefix confirmed as working for SFX
     FlameAudio.audioCache.prefix = 'assets/music/';
     _isInitialized = true;
   }
 
-  /// Master switch to enable/disable all audio globally
-  void updateMuteState(bool muted) {
-    _isMuted = muted;
-    if (_isMuted) {
-      stopBgm();
-    }
-  }
-
   void playBgm(String fileName, {double volume = 1.0}) {
-    if (_isMuted) return;
     init();
-    
-    // Only call play if it's not already emitting sound.
-    // This avoids restarting the track from the beginning on every sync.
-    if (!FlameAudio.bgm.isPlaying) {
-      FlameAudio.bgm.play(fileName, volume: volume);
-    }
+    FlameAudio.bgm.play(fileName, volume: volume);
   }
 
   void stopBgm() {
-    // Stop completely resets the BGM singleton
-    FlameAudio.bgm.stop();
+    if (FlameAudio.bgm.isPlaying) {
+      FlameAudio.bgm.stop();
+    }
   }
 
   void pauseBgm() {
@@ -47,14 +32,14 @@ class AudioService {
   }
 
   void resumeBgm() {
-    if (_isMuted) return;
-    // resume() only works if it was previously paused. 
-    // If it was stopped, we need playBgm() instead.
-    FlameAudio.bgm.resume();
+    if (!FlameAudio.bgm.isPlaying) {
+      // In some versions resume might not work if fully stopped, 
+      // but Bgm handles its own state. 
+      FlameAudio.bgm.resume();
+    }
   }
 
   void playSfx(String fileName, {double volume = 1.0}) {
-    if (_isMuted) return;
     init();
     FlameAudio.play(fileName, volume: volume);
   }

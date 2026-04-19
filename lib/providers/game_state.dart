@@ -72,13 +72,7 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     if (!_isMusicEnabled || _isGameOver || _isPaused) {
       _audio.pauseBgm();
     } else {
-      // If it's already playing/paused, resume it. 
-      // AudioService.resumeBgm handles the check internally.
-      _audio.resumeBgm();
-      
-      // If no music is playing at all (initial start), play it.
-      // We check this in AudioService or here. 
-      // To be safe, we only call play if it's needed.
+      // playBgm internal logic already handles "don't restart if playing"
       _audio.playBgm('bg.mp3'); 
     }
   }
