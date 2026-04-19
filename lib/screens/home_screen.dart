@@ -99,10 +99,10 @@ class HomeScreen extends StatelessWidget {
                         child: OutlinedButton(
                           onPressed: isCooldown ? null : () {
                             AdService.showRewardedAd(onRewardComplete: () {
-                              state.addBonusCoins(10);
+                              state.addBonusCoins(50);
                               state.recordAdWatch();
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('earned 10 coins reward')),
+                                const SnackBar(content: Text('earned 50 coins reward')),
                               );
                             });
                           },
@@ -121,7 +121,7 @@ class HomeScreen extends StatelessWidget {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'WATCH AD TO EARN 10 COINS',
+                                    'WATCH AD TO EARN 50 COINS',
                                     style: GoogleFonts.outfit(color: Colors.white, fontWeight: FontWeight.bold),
                                   ),
                                   Padding(

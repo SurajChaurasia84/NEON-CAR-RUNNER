@@ -19,6 +19,7 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
   bool _isGameOver = false;
   bool _isPaused = false;
   bool _hasContinuedInRun = false;
+  bool _isSessionStarted = false;
   int _coinsFinalizedInRun = 0;
 
   int get totalCoins => _totalCoins;
@@ -29,6 +30,7 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
   bool get isPaused => _isPaused;
   bool get hasContinuedInRun => _hasContinuedInRun;
   bool get isMusicEnabled => _isMusicEnabled;
+  bool get isSessionStarted => _isSessionStarted;
   
   Duration? get adCooldownRemaining {
     if (_lastAdTime == null) return null;
@@ -54,7 +56,7 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     if (adCooldownRemaining != null) {
       _startCooldownTimer();
     }
-    _syncAudio();
+    // We NO LONGER call _syncAudio() here because we want Home Screen to be silent
     notifyListeners();
   }
 
@@ -63,16 +65,19 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     if (state == AppLifecycleState.paused || state == AppLifecycleState.inactive) {
       _audio.pauseBgm();
     } else if (state == AppLifecycleState.resumed) {
-      _syncAudio();
+      if (_isSessionStarted) _syncAudio();
     }
   }
 
   /// Centralized logic to determine if BGM should be playing
   void _syncAudio() {
-    if (!_isMusicEnabled || _isGameOver || _isPaused) {
+    // Only play if session has started AND standard conditions are met
+    if (!_isSessionStarted || !_isMusicEnabled || _isGameOver || _isPaused) {
       _audio.pauseBgm();
     } else {
-      // playBgm internal logic already handles "don't restart if playing"
+      // Try to resume first (handles the pause-to-play case)
+      _audio.resumeBgm();
+      // playBgm only starts it if it's currently stopped/null
       _audio.playBgm('bg.mp3'); 
     }
   }
@@ -84,9 +89,8 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
     // Push the master switch to the service
     _audio.updateMuteState(!_isMusicEnabled);
     
-    if (_isMusicEnabled) {
-      _syncAudio();
-    }
+    // Even on home screen, we can sync audio if the session already started once
+    _syncAudio();
     notifyListeners();
   }
 
@@ -98,6 +102,8 @@ class GameState extends ChangeNotifier with WidgetsBindingObserver {
       // Play SFX (only if music/sound is enabled)
       _audio.playSfx('go.mp3');
     } else {
+      // This is called when "START GAME" or "RESTART" is pressed
+      _isSessionStarted = true;
       resetScore();
       _hasContinuedInRun = false;
       _isPaused = false;

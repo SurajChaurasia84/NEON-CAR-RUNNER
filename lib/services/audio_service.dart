@@ -7,6 +7,7 @@ class AudioService {
 
   bool _isInitialized = false;
   bool _isMuted = false;
+  bool _bgmStarted = false;
 
   void init() {
     if (_isInitialized) return;
@@ -28,16 +29,18 @@ class AudioService {
     if (_isMuted) return;
     init();
     
-    // Only call play if it's not already emitting sound.
-    // This avoids restarting the track from the beginning on every sync.
-    if (!FlameAudio.bgm.isPlaying) {
+    // Only call play if we haven't started yet or if it's completely stopped.
+    // This prevents the "Restart from beginning" bug when unpausing.
+    if (!_bgmStarted || !FlameAudio.bgm.isPlaying) {
       FlameAudio.bgm.play(fileName, volume: volume);
+      _bgmStarted = true;
     }
   }
 
   void stopBgm() {
     // Stop completely resets the BGM singleton
     FlameAudio.bgm.stop();
+    _bgmStarted = false;
   }
 
   void pauseBgm() {
