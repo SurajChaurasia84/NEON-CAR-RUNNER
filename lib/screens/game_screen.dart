@@ -233,136 +233,136 @@ class HUDOverlay extends StatelessWidget {
 
 class GameOverOverlay extends StatelessWidget {
   final RunnerGame game;
+
   const GameOverOverlay({super.key, required this.game});
 
   @override
   Widget build(BuildContext context) {
-    final state = context.watch<GameState>(); // Use watch for reactive UI
+    final state = context.watch<GameState>();
 
     return Container(
       color: Colors.black.withOpacity(0.85),
       child: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(
-              'GAME OVER',
-              style: GoogleFonts.outfit(
-                color: Colors.redAccent,
-                fontSize: 48,
-                fontWeight: FontWeight.bold,
-                shadows: [const Shadow(color: Colors.red, blurRadius: 20)],
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(vertical: 40),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(
+                'GAME OVER',
+                style: GoogleFonts.outfit(
+                  color: Colors.redAccent,
+                  fontSize: 48,
+                  fontWeight: FontWeight.bold,
+                  shadows: [const Shadow(color: Colors.red, blurRadius: 20)],
+                ),
               ),
-            ),
-            const SizedBox(height: 20),
-            Text(
-              'CURRENT SCORE: ${state.currentRunScore}',
-              style: GoogleFonts.outfit(color: Colors.white, fontSize: 24),
-            ),
-            const SizedBox(height: 20),
-            
-            // Continue Options (Only one use per run)
-            if (!state.hasContinuedInRun) ...[
-              Opacity(
-                opacity: state.totalCoins >= 20 ? 1.0 : 0.5,
-                child: OutlinedButton(
-                  onPressed: state.totalCoins >= 20 
-                    ? () {
-                        if (state.spendCoins(20)) {
-                          game.continueRun();
-                          game.gameSpeed *= 0.8;
+              const SizedBox(height: 20),
+              Text(
+                'CURRENT SCORE: ${state.currentRunScore}',
+                style: GoogleFonts.outfit(color: Colors.white, fontSize: 24),
+              ),
+              const SizedBox(height: 20),
+              
+              if (!state.hasContinuedInRun) ...[
+                Opacity(
+                  opacity: state.totalCoins >= 20 ? 1.0 : 0.5,
+                  child: OutlinedButton(
+                    onPressed: state.totalCoins >= 20 
+                      ? () {
+                          if (state.spendCoins(20)) {
+                            game.continueRun();
+                            game.gameSpeed *= 0.8;
+                          }
                         }
-                      }
-                    : null,
-                  style: OutlinedButton.styleFrom(
-                    side: BorderSide(
-                      color: state.totalCoins >= 20 ? Colors.yellowAccent : Colors.grey, 
-                      width: 2
+                      : null,
+                    style: OutlinedButton.styleFrom(
+                      side: BorderSide(
+                        color: state.totalCoins >= 20 ? Colors.yellowAccent : Colors.grey, 
+                        width: 2
+                      ),
+                      padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                     ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Text(
+                          state.totalCoins >= 20 ? 'USE 20 ' : 'NEED 20 ',
+                          style: GoogleFonts.outfit(
+                            color: state.totalCoins >= 20 ? Colors.yellowAccent : Colors.grey, 
+                            fontSize: 18, 
+                            fontWeight: FontWeight.bold
+                          ),
+                        ),
+                        Opacity(
+                          opacity: state.totalCoins >= 20 ? 1.0 : 0.5,
+                          child: Image.asset('assets/images/coin.png', width: 24, height: 24),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 15),
+                Text(
+                  '— OR —',
+                  style: GoogleFonts.outfit(color: Colors.white54, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 15),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    AdService.showRewardedAd(onRewardComplete: () {
+                      game.continueRun();
+                      game.gameSpeed *= 0.8;
+                    });
+                  },
+                  icon: const Icon(Icons.video_library_rounded),
+                  label: Text(
+                    'Watch Ad',
+                    style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orangeAccent,
+                    foregroundColor: Colors.black,
                     padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
                   ),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text(
-                        state.totalCoins >= 20 ? 'USE 20 ' : 'NEED 20 ',
-                        style: GoogleFonts.outfit(
-                          color: state.totalCoins >= 20 ? Colors.yellowAccent : Colors.grey, 
-                          fontSize: 18, 
-                          fontWeight: FontWeight.bold
-                        ),
-                      ),
-                      Opacity(
-                        opacity: state.totalCoins >= 20 ? 1.0 : 0.5,
-                        child: Image.asset('assets/images/coin.png', width: 24, height: 24),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 15),
-              Text(
-                '— OR —',
-                style: GoogleFonts.outfit(color: Colors.white54, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 15),
-              ElevatedButton.icon(
-                onPressed: () {
-                  AdService.showRewardedAd(onRewardComplete: () {
-                    game.continueRun();
-                    game.gameSpeed *= 0.8;
-                  });
-                },
-                icon: const Icon(Icons.video_library_rounded),
-                label: Text(
-                  'Watch Ad',
-                  style: GoogleFonts.outfit(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.orangeAccent,
-                  foregroundColor: Colors.black,
-                  padding: const EdgeInsets.symmetric(horizontal: 30, vertical: 15),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                ),
-              ),
-            ],
-
-            const SizedBox(height: 20),
-
-            // Navigation Buttons in a Row
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                // Restart Button
-                ElevatedButton.icon(
-                  onPressed: () => game.restart(),
-                  icon: const Icon(Icons.refresh),
-                  label: const Text('RESTART'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.greenAccent,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  ),
-                ),
-                const SizedBox(width: 20),
-                // Home Button
-                ElevatedButton.icon(
-                  onPressed: () {
-                    AdService.showInterstitialAd();
-                    Navigator.of(context).pop();
-                  },
-                  icon: const Icon(Icons.home),
-                  label: const Text('HOME'),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white24,
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                  ),
                 ),
               ],
-            ),
-          ],
+
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () => game.restart(),
+                    icon: const Icon(Icons.refresh),
+                    label: const Text('RESTART'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.greenAccent,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      AdService.showInterstitialAd();
+                      Navigator.of(context).pop();
+                    },
+                    icon: const Icon(Icons.home),
+                    label: const Text('HOME'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white24,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

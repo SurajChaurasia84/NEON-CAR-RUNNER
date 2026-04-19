@@ -51,6 +51,16 @@ class EndlessRunnerApp extends StatelessWidget {
         brightness: Brightness.dark,
         primarySwatch: Colors.cyan,
       ),
+      builder: (context, child) {
+        final data = MediaQuery.of(context);
+        // Clamp text scaling between 1.0 and 1.15 for UI stability
+        return MediaQuery(
+          data: data.copyWith(
+            textScaler: data.textScaler.clamp(minScaleFactor: 1.0, maxScaleFactor: 1.15),
+          ),
+          child: child!,
+        );
+      },
       home: const HomeScreen(),
     );
   }

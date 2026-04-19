@@ -34,19 +34,25 @@ class HomeScreen extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const SizedBox(height: 80),
-                  // Title above the image
-                  Text(
-                    'NEON CAR RUNNER',
-                    textAlign: TextAlign.center,
-                    style: GoogleFonts.outfit(
-                      color: Colors.cyanAccent,
-                      fontSize: 56,
-                      fontWeight: FontWeight.w900,
-                      letterSpacing: 4,
-                      shadows: [
-                        const Shadow(color: Colors.cyan, blurRadius: 20),
-                        const Shadow(color: Colors.cyan, blurRadius: 40),
-                      ],
+                  // Title above the image - Wrapped in FittedBox to handle large fonts
+                  Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      child: Text(
+                        'NEON CAR RUNNER',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.outfit(
+                          color: Colors.cyanAccent,
+                          fontSize: 56,
+                          fontWeight: FontWeight.w900,
+                          letterSpacing: 4,
+                          shadows: [
+                            const Shadow(color: Colors.cyan, blurRadius: 20),
+                            const Shadow(color: Colors.cyan, blurRadius: 40),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
 
@@ -268,61 +274,63 @@ class HomeScreen extends StatelessWidget {
                 ),
               ],
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  'REWARD CLAIMED',
-                  style: GoogleFonts.outfit(
-                    color: Colors.cyanAccent,
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 2,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    'REWARD CLAIMED',
+                    style: GoogleFonts.outfit(
+                      color: Colors.cyanAccent,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 2,
+                    ),
                   ),
-                ),
-                const SizedBox(height: 30),
-                Stack(
-                  alignment: Alignment.center,
-                  children: [
-                    Container(
-                      width: 100,
-                      height: 100,
-                      decoration: BoxDecoration(
-                        color: Colors.yellowAccent.withOpacity(0.1),
-                        shape: BoxShape.circle,
+                  const SizedBox(height: 30),
+                  Stack(
+                    alignment: Alignment.center,
+                    children: [
+                      Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.yellowAccent.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                      Image.asset('assets/images/money-bag.png', width: 80, height: 80),
+                    ],
+                  ),
+                  const SizedBox(height: 20),
+                  Text(
+                    '+$amount COINS',
+                    style: GoogleFonts.outfit(
+                      color: Colors.yellowAccent,
+                      fontSize: 32,
+                      fontWeight: FontWeight.w900,
+                    ),
+                  ),
+                  const SizedBox(height: 30),
+                  ElevatedButton(
+                    onPressed: () => Navigator.of(context).pop(),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.cyanAccent,
+                      foregroundColor: Colors.black,
+                      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                      elevation: 5,
+                    ),
+                    child: Text(
+                      'COLLECT',
+                      style: GoogleFonts.outfit(
+                        fontSize: 18,
+                        fontWeight: FontWeight.bold,
                       ),
                     ),
-                    Image.asset('assets/images/money-bag.png', width: 80, height: 80),
-                  ],
-                ),
-                const SizedBox(height: 20),
-                Text(
-                  '+$amount COINS',
-                  style: GoogleFonts.outfit(
-                    color: Colors.yellowAccent,
-                    fontSize: 32,
-                    fontWeight: FontWeight.w900,
                   ),
-                ),
-                const SizedBox(height: 30),
-                ElevatedButton(
-                  onPressed: () => Navigator.of(context).pop(),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.cyanAccent,
-                    foregroundColor: Colors.black,
-                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                    elevation: 5,
-                  ),
-                  child: Text(
-                    'COLLECT',
-                    style: GoogleFonts.outfit(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
