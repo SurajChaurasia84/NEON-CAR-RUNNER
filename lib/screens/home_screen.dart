@@ -1,3 +1,4 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -101,9 +102,7 @@ class HomeScreen extends StatelessWidget {
                             AdService.showRewardedAd(onRewardComplete: () {
                               state.addBonusCoins(50);
                               state.recordAdWatch();
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(content: Text('earned 50 coins reward')),
-                              );
+                              _showRewardDialog(context, 50);
                             });
                           },
                           style: OutlinedButton.styleFrom(
@@ -242,6 +241,91 @@ class HomeScreen extends StatelessWidget {
             ),
           ),
         ],
+      ),
+    );
+  }
+
+  void _showRewardDialog(BuildContext context, int amount) {
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+        child: Dialog(
+          backgroundColor: Colors.transparent,
+          insetPadding: const EdgeInsets.symmetric(horizontal: 40),
+          child: Container(
+            padding: const EdgeInsets.all(24),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1A1A2E).withOpacity(0.9),
+              borderRadius: BorderRadius.circular(25),
+              border: Border.all(color: Colors.cyanAccent, width: 2),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.cyanAccent.withOpacity(0.3),
+                  blurRadius: 20,
+                  spreadRadius: 2,
+                ),
+              ],
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  'REWARD CLAIMED',
+                  style: GoogleFonts.outfit(
+                    color: Colors.cyanAccent,
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    letterSpacing: 2,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                Stack(
+                  alignment: Alignment.center,
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 100,
+                      decoration: BoxDecoration(
+                        color: Colors.yellowAccent.withOpacity(0.1),
+                        shape: BoxShape.circle,
+                      ),
+                    ),
+                    Image.asset('assets/images/money-bag.png', width: 80, height: 80),
+                  ],
+                ),
+                const SizedBox(height: 20),
+                Text(
+                  '+$amount COINS',
+                  style: GoogleFonts.outfit(
+                    color: Colors.yellowAccent,
+                    fontSize: 32,
+                    fontWeight: FontWeight.w900,
+                  ),
+                ),
+                const SizedBox(height: 30),
+                ElevatedButton(
+                  onPressed: () => Navigator.of(context).pop(),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.cyanAccent,
+                    foregroundColor: Colors.black,
+                    padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                    elevation: 5,
+                  ),
+                  child: Text(
+                    'COLLECT',
+                    style: GoogleFonts.outfit(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
       ),
     );
   }
